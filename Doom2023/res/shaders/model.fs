@@ -8,7 +8,12 @@ uniform sampler2D texture_specular1;
 uniform sampler2D texture_normal1;
 uniform sampler2D texture_height1;
 
+
 void main()
 {    
-    FragColor = texture(texture_diffuse1, TexCoords);// * texture(texture_normal1, TexCoords);
+    vec3 normal = texture(texture_normal1, TexCoords).rgb;
+    normal = normalize(normal * 2.0 - 1.0);
+    vec4 h = texture(texture_height1, TexCoords);
+    vec4 d = texture(texture_diffuse1, TexCoords);
+    FragColor = normalize(h * d);
 }
