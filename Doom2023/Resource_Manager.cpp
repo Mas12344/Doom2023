@@ -41,6 +41,11 @@ Texture2D ResourceManager::GetTexture(std::string name)
     return Textures[name];
 }
 
+bool ResourceManager::IsTextureLoaded(std::string name)
+{
+    return !(Textures.find(name) == Textures.end());
+}
+
 void ResourceManager::Clear()
 {
     // (properly) delete all shaders	
@@ -99,14 +104,33 @@ Texture2D ResourceManager::loadTextureFromFile(const char *file, bool alpha)
 {
     // create texture object
     Texture2D texture;
-    if (alpha)
-    {
-        texture.Internal_Format = GL_RGBA;
-        texture.Image_Format = GL_RGBA;
-    }
     // load image
     int width, height, nrChannels;
     unsigned char* data = stbi_load(file, &width, &height, &nrChannels, 0);
+    if (data && nrChannels == 3)
+    {
+        texture.Internal_Format = GL_RGB;
+        texture.Image_Format = GL_RGB;
+    }
+    else if (data && nrChannels == 4) {
+        texture.Internal_Format = GL_RGBA;
+        texture.Image_Format = GL_RGBA;
+    }
+    else if (data && nrChannels == 2) {
+        texture.Internal_Format = GL_RG;
+        texture.Image_Format = GL_RG;
+    }
+    else if (data && nrChannels == 1) {
+        texture.Internal_Format = GL_R;
+        texture.Image_Format = GL_RGB;
+    }
+    else
+    {
+        std::cout << "Failed to load texture: " << file << std::endl;
+        std::cout << "width: " << width << " height: " << height << " nrChannels: " << nrChannels << std::endl;
+    }
+    
+    
     // now generate texture
     texture.Generate(width, height, data);
     // and finally free image data

@@ -1,20 +1,22 @@
-#version 330 core
-layout (location = 0) in vec3 aPos;
-layout (location = 1) in vec3 aNormal;
-layout (location = 2) in vec2 aTexCoords;
-layout (location = 3) in vec3 aTangent;
-layout (location = 4) in vec3 aBitTangent;
-layout (location = 5) in vec4 aID;
-layout (location = 6) in vec4 aWeights;
+#version 330
 
-out vec2 TexCoords;
-
-uniform mat4 M;
-uniform mat4 V;
+//Zmienne jednorodne
 uniform mat4 P;
+uniform mat4 V;
+uniform mat4 M;
 
-void main()
-{
-    TexCoords = aTexCoords;    
-    gl_Position = P * V * M * vec4(aPos, 1.0);
+//Atrybuty
+in vec3 vertex; //wspolrzedne wierzcholka w przestrzeni modelu
+in vec3 normal;
+in vec2 texCoord0;
+
+out vec2 iTexCoord0;
+
+
+void main(void) {
+    vec4 vert = vec4(vertex, 1);
+    vec4 norm = vec4(normal, 0);
+
+    gl_Position=P*V*M*vert;
+    iTexCoord0 = texCoord0;
 }

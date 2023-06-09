@@ -1,19 +1,19 @@
-#version 330 core
-out vec4 FragColor;
+#version 330
 
-in vec2 TexCoords;
+uniform sampler2D diffuseTexture;
 
-uniform sampler2D texture_diffuse1;
-uniform sampler2D texture_specular1;
-uniform sampler2D texture_normal1;
-uniform sampler2D texture_height1;
+out vec4 pixelColor; //Zmienna wyjsciowa fragment shadera. Zapisuje sie do niej ostateczny (prawie) kolor piksela
+in vec2 iTexCoord0;
+
+uniform float dissolve;
+uniform float ior;
+uniform float shininess;
+
+void main(void) {
+  
+    vec4 col = texture(diffuseTexture, iTexCoord0);
+
+    pixelColor = col;
 
 
-void main()
-{    
-    vec3 normal = texture(texture_normal1, TexCoords).rgb;
-    normal = normalize(normal * 2.0 - 1.0);
-    vec4 h = texture(texture_height1, TexCoords);
-    vec4 d = texture(texture_diffuse1, TexCoords);
-    FragColor = normalize(h * d);
 }
