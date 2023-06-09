@@ -9,6 +9,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 #include "Resource_Manager.h"
+#include "Text_Renderer.h"
 
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
@@ -16,11 +17,12 @@ float lastFrame = 0.0f;
 int screenWidth = 640;
 int screenHeight = 480;
 
+TextRenderer *Text;
+
 void window_size_callback(GLFWwindow* window, int width, int height)
 {
     screenWidth = width;
     screenHeight = height;
-
 }
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -30,9 +32,10 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
 int main() {
     GLFWwindow* window;
+
     if (!glfwInit())
         return -1;
-    
+
     window = glfwCreateWindow(screenWidth, screenHeight, "Hello World", NULL, NULL);
     if (!window)
     {
@@ -47,13 +50,14 @@ int main() {
     gladLoadGL();
 
     stbi_set_flip_vertically_on_load(false);
+    Text = new TextRenderer(screenWidth, screenHeight);
 
     glEnable(GL_DEPTH_TEST);
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-
+    Text->Load("res/sans.ttf",20);
     while (!glfwWindowShouldClose(window))
     {
         float currentFrame = glfwGetTime();
@@ -62,7 +66,7 @@ int main() {
 
         glClearColor(0.09375f, 0.09375f, 0.09375f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+        Text->RenderText("Dupa", screenWidth/2, screenHeight/2, 1.0f);
 
         glfwSwapBuffers(window);
 
