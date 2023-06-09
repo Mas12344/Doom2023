@@ -37,6 +37,7 @@ public:
     static Texture2D LoadTexture(const char *file, bool alpha, std::string name);
     // retrieves a stored texture
     static Texture2D GetTexture(std::string name);
+    static bool IsTextureLoaded(std::string name);
     // properly de-allocates all loaded resources
     static void      Clear();
 private:

@@ -107,6 +107,17 @@ void Shader::SetMatrix4(const char *name, const glm::mat4 &matrix, bool useShade
     glUniformMatrix4fv(glGetUniformLocation(this->ID, name), 1, false, glm::value_ptr(matrix));
 }
 
+void Shader::EnableAttribPointerf(const char* name, int size, float* attributes)
+{
+    glEnableVertexAttribArray(glGetAttribLocation(this->ID, name));
+    glVertexAttribPointer(glGetAttribLocation(this->ID, name), size, GL_FLOAT, false, 0, attributes);
+}
+
+void Shader::DisableAttribPointerf(const char* name)
+{
+    glDisableVertexAttribArray(glGetAttribLocation(this->ID, name));
+}
+
 
 void Shader::checkCompileErrors(unsigned int object, std::string type)
 {

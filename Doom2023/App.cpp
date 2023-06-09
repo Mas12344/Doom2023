@@ -9,6 +9,8 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 #include "Resource_Manager.h"
+#include "Model.h"
+#include "camera.h"
 
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
@@ -16,17 +18,72 @@ float lastFrame = 0.0f;
 int screenWidth = 640;
 int screenHeight = 480;
 
-void window_size_callback(GLFWwindow* window, int width, int height)
-{
-    screenWidth = width;
-    screenHeight = height;
+float lastX = screenWidth / 2.0f;
+float lastY = screenHeight / 2.0f;
+bool firstMouse = true;
 
+
+Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
+
+void processInput(GLFWwindow* window)
+{
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, true);
+
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        camera.ProcessKeyboard(FORWARD, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        camera.ProcessKeyboard(BACKWARD, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        camera.ProcessKeyboard(LEFT, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        camera.ProcessKeyboard(RIGHT, deltaTime);
 }
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
+    // make sure the viewport matches the new window dimensions; note that width and 
+    // height will be significantly larger than specified on retina displays.
     glViewport(0, 0, width, height);
 }
+
+void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
+{
+    float xpos = static_cast<float>(xposIn);
+    float ypos = static_cast<float>(yposIn);
+
+    if (firstMouse)
+    {
+        lastX = xpos;
+        lastY = ypos;
+        firstMouse = false;
+    }
+
+    float xoffset = xpos - lastX;
+    float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
+
+    lastX = xpos;
+    lastY = ypos;
+
+    camera.ProcessMouseMovement(xoffset, yoffset);
+}
+
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+    camera.ProcessMouseScroll(static_cast<float>(yoffset));
+}
+
+void windowResizeCallback(GLFWwindow* window, int width, int height) {
+    if (height == 0) return;
+    screenWidth = width;
+    screenHeight = height;
+    glViewport(0, 0, width, height);
+}
+
+void error_callback(int error, const char* description) {
+    fputs(description, stderr);
+}
+
 
 int main() {
     GLFWwindow* window;
@@ -41,10 +98,13 @@ int main() {
     }
 
     glfwMakeContextCurrent(window);
-    glfwSetWindowSizeCallback(window, window_size_callback);
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-    
     gladLoadGL();
+    glfwSetWindowSizeCallback(window, windowResizeCallback);
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    glfwSetCursorPosCallback(window, mouse_callback);
+    glfwSetScrollCallback(window, scroll_callback);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetErrorCallback(error_callback);
 
     stbi_set_flip_vertically_on_load(false);
 
@@ -54,16 +114,29 @@ int main() {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 
+    //Model sponza = Model("res/models/sponza/sponza.obj", "res/models/sponza/");
+    //sponza.m_modelmatrix = glm::scale(sponza.m_modelmatrix, glm::vec3(0.01f));
+    ResourceManager::LoadShader("res/shaders/model.vs", "res/shaders/model.fs", nullptr, "simple");
+
     while (!glfwWindowShouldClose(window))
     {
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
+        processInput(window);
+
         glClearColor(0.09375f, 0.09375f, 0.09375f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        glm::mat4 V = camera.GetViewMatrix();
+        glm::mat4 P = glm::perspective(glm::radians(camera.Zoom), (float)screenWidth / screenHeight, 0.1f, 50.0f); //Wylicz macierz rzutowania
 
+        auto s = ResourceManager::GetShader("simple").Use();
+        s.SetMatrix4("V", V);
+        s.SetMatrix4("P", P);
+
+        //sponza.Draw("simple");
         glfwSwapBuffers(window);
 
         glfwPollEvents();
