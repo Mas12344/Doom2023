@@ -9,14 +9,18 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 #include "Resource_Manager.h"
+
 #include "Model.h"
 #include "camera.h"
+#include "Text_Renderer.h"
+
 
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
 int screenWidth = 640;
 int screenHeight = 480;
+
 
 float lastX = screenWidth / 2.0f;
 float lastY = screenHeight / 2.0f;
@@ -38,7 +42,10 @@ void processInput(GLFWwindow* window)
         camera.ProcessKeyboard(LEFT, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         camera.ProcessKeyboard(RIGHT, deltaTime);
-}
+
+TextRenderer *Text;
+
+
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
@@ -87,9 +94,10 @@ void error_callback(int error, const char* description) {
 
 int main() {
     GLFWwindow* window;
+
     if (!glfwInit())
         return -1;
-    
+
     window = glfwCreateWindow(screenWidth, screenHeight, "Hello World", NULL, NULL);
     if (!window)
     {
@@ -107,6 +115,7 @@ int main() {
     glfwSetErrorCallback(error_callback);
 
     stbi_set_flip_vertically_on_load(false);
+    Text = new TextRenderer(screenWidth, screenHeight);
 
     glEnable(GL_DEPTH_TEST);
 
@@ -114,9 +123,12 @@ int main() {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 
+
     //Model sponza = Model("res/models/sponza/sponza.obj", "res/models/sponza/");
     //sponza.m_modelmatrix = glm::scale(sponza.m_modelmatrix, glm::vec3(0.01f));
     ResourceManager::LoadShader("res/shaders/model.vs", "res/shaders/model.fs", nullptr, "simple");
+
+    Text->Load("res/sans.ttf",20);
 
     while (!glfwWindowShouldClose(window))
     {
@@ -129,12 +141,15 @@ int main() {
         glClearColor(0.09375f, 0.09375f, 0.09375f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+
         glm::mat4 V = camera.GetViewMatrix();
         glm::mat4 P = glm::perspective(glm::radians(camera.Zoom), (float)screenWidth / screenHeight, 0.1f, 50.0f); //Wylicz macierz rzutowania
 
         auto s = ResourceManager::GetShader("simple").Use();
         s.SetMatrix4("V", V);
         s.SetMatrix4("P", P);
+
+        Text->RenderText("Dupa", screenWidth/2, screenHeight/2, 1.0f);
 
         //sponza.Draw("simple");
         glfwSwapBuffers(window);
