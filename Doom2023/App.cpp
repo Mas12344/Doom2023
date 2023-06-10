@@ -99,7 +99,7 @@ void error_callback(int error, const char* description) {
 
 void spawnEnemies() {
     for (int i = 0; i < 40; i++) {
-        Enemy* enemy = new Enemy;
+        Enemy* enemy = new Enemy();
         enemies[i] = enemy;
     }
 }
@@ -143,51 +143,11 @@ int main() {
         )
     );
 
-    GameObject drone1 = GameObject(drone_model);
-    drone1.ApplyTransform(
-        Transformation(
-            TranformType::Translate,
-            glm::vec3(0.f),
-            glm::vec3(0.f, 2.f, 0.f),
-            0.0f
-        )
-    );
-    glm::mat4 Mdrone1 = drone1.ApplyTransform(
-        Transformation(
-            TranformType::Scale,
-            glm::vec3(0.f),
-            glm::vec3(0.016f),
-            0.0f
-        )
-    );
-
-    GameObject drone2 = GameObject(drone_model);
-    drone2.ApplyTransform(
-        Transformation(
-            TranformType::Translate,
-            glm::vec3(0.f),
-            glm::vec3(1.5f, 2.f, 0.f),
-            0.0f
-        )
-    );
-    glm::mat4 Mdrone2 = drone2.ApplyTransform(
-        Transformation(
-            TranformType::Scale,
-            glm::vec3(0.f),
-            glm::vec3(0.016f),
-            0.0f
-        )
-    );
-
     Text = new TextRenderer(screenWidth, screenHeight);
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-
-    //Model sponza = Model("res/models/drone/Weatley.obj", "res/models/drone/");
-    //sponza.m_modelmatrix = glm::scale(sponza.m_modelmatrix, glm::vec3(0.01f));
 
     ResourceManager::LoadShader("res/shaders/model.vs", "res/shaders/model.fs", nullptr, "simple");
 
@@ -213,8 +173,6 @@ int main() {
         s.SetMatrix4("P", P);
    
         labirynt.GetModel()->Draw("simple", Mlabirynt);
-        drone1.GetModel()->Draw("simple", Mdrone1);
-        drone2.GetModel()->Draw("simple", Mdrone2);
 
         for (int i = 0; i < 40; i++) {
             enemies[i]->spawnEnemy();
