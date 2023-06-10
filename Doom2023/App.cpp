@@ -125,8 +125,8 @@ int main() {
 
 
 
-    //Model sponza = Model("res/models/sponza/sponza.obj", "res/models/sponza/");
-    //sponza.m_modelmatrix = glm::scale(sponza.m_modelmatrix, glm::vec3(0.01f));
+    Model labirynt = Model("res/models/labirynt/LabiryntDowna.obj", "res/models/labirynt/");
+    labirynt.m_modelmatrix = glm::scale(labirynt.m_modelmatrix, glm::vec3(0.1f));
     ResourceManager::LoadShader("res/shaders/model.vs", "res/shaders/model.fs", nullptr, "simple");
 
     Text->Load("res/sans.ttf",20);
@@ -150,9 +150,9 @@ int main() {
         s.SetMatrix4("V", V);
         s.SetMatrix4("P", P);
 
-        Text->RenderText("Dupa", screenWidth/2, screenHeight/2, 1.0f);
 
-        //sponza.Draw("simple");
+        labirynt.Draw("simple");
+        Text->RenderText("Dupa", screenWidth/2, screenHeight/2, 1.0f);
         glfwSwapBuffers(window);
 
         glfwPollEvents();
