@@ -11,6 +11,7 @@
 #include "Resource_Manager.h"
 
 #include "Model.h"
+#include "Enemy.h"
 #include "camera.h"
 #include "Text_Renderer.h"
 
@@ -26,6 +27,7 @@ float lastX = screenWidth / 2.0f;
 float lastY = screenHeight / 2.0f;
 bool firstMouse = true;
 
+Enemy *enemies[40];
 
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
@@ -92,6 +94,12 @@ void error_callback(int error, const char* description) {
     fputs(description, stderr);
 }
 
+void spawnEnemies() {
+    for (int i = 0; i < 40; i++) {
+        Enemy* enemy = new Enemy;
+        enemies[i] = enemy;
+    }
+}
 
 int main() {
     GLFWwindow* window;
@@ -99,7 +107,7 @@ int main() {
     if (!glfwInit())
         return -1;
 
-    window = glfwCreateWindow(screenWidth, screenHeight, "Hello World", NULL, NULL);
+    window = glfwCreateWindow(screenWidth, screenHeight, "Doom 2023 Copyright", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
@@ -125,11 +133,12 @@ int main() {
 
 
 
-    //Model sponza = Model("res/models/sponza/sponza.obj", "res/models/sponza/");
+    //Model sponza = Model("res/models/drone/Weatley.obj", "res/models/drone/");
     //sponza.m_modelmatrix = glm::scale(sponza.m_modelmatrix, glm::vec3(0.01f));
     ResourceManager::LoadShader("res/shaders/model.vs", "res/shaders/model.fs", nullptr, "simple");
 
     Text->Load("res/sans.ttf",20);
+    spawnEnemies();
 
     while (!glfwWindowShouldClose(window))
     {
@@ -145,13 +154,15 @@ int main() {
 
         glm::mat4 V = camera.GetViewMatrix();
         glm::mat4 P = glm::perspective(glm::radians(camera.Zoom), (float)screenWidth / screenHeight, 0.1f, 50.0f); //Wylicz macierz rzutowania
-
         auto s = ResourceManager::GetShader("simple").Use();
         s.SetMatrix4("V", V);
         s.SetMatrix4("P", P);
-
-        Text->RenderText("Dupa", screenWidth/2, screenHeight/2, 1.0f);
-
+    
+        for (int i = 0; i < 40; i++) {
+            enemies[i]->spawnEnemy();
+        }
+        //Text->RenderText("Dupa", screenWidth/2, screenHeight/2, 1.0f); //napisz na ekranie napis "Dupa"
+        
         //sponza.Draw("simple");
         glfwSwapBuffers(window);
 
