@@ -24,6 +24,7 @@ public:
 	std::shared_ptr<Model> GetModel();
 	void SetModel(std::shared_ptr<Model> model);
 	glm::mat4 ApplyTransform(Transformation t);
+	inline glm::mat4 GetModelMatrix() const { return m_ModelMatrix; };
 
 protected:
 	std::shared_ptr<Model> m_Model;

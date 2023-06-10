@@ -7,6 +7,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include <memory>
+#include <sstream>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -97,9 +98,9 @@ void error_callback(int error, const char* description) {
     fputs(description, stderr);
 }
 
-void spawnEnemies() {
+void spawnEnemies(std::shared_ptr<Model> model) {
     for (int i = 0; i < 40; i++) {
-        Enemy* enemy = new Enemy();
+        Enemy* enemy = new Enemy(model);
         enemies[i] = enemy;
     }
 }
@@ -152,7 +153,7 @@ int main() {
     ResourceManager::LoadShader("res/shaders/model.vs", "res/shaders/model.fs", nullptr, "simple");
 
     Text->Load("res/sans.ttf",20);
-    spawnEnemies();
+    spawnEnemies(drone_model);
 
     while (!glfwWindowShouldClose(window))
     {
@@ -175,9 +176,12 @@ int main() {
         labirynt.GetModel()->Draw("simple", Mlabirynt);
 
         for (int i = 0; i < 40; i++) {
-            enemies[i]->spawnEnemy();
+            auto m = enemies[i]->GetModelMatrix();
+            enemies[i]->GetModel()->Draw("simple", m);
         }
-        //Text->RenderText("Dupa", screenWidth/2, screenHeight/2, 1.0f); //napisz na ekranie napis "Dupa"
+        std::stringstream ss;
+        ss << "camera: " << camera.Position[0] << ", " << camera.Position[1] << ", " << camera.Position[2];
+        Text->RenderText(ss.str(), 15.f, 15.f, 1.0f); //napisz na ekranie napis "Dupa"
 
         glfwSwapBuffers(window);
 

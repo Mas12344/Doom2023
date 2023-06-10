@@ -1,44 +1,39 @@
 #include "Enemy.h"
-#include <random>
+std::random_device Enemy::m_RandomDevice{};
+std::mt19937 Enemy::m_Generator{ Enemy::m_RandomDevice() };
 
 float randomNumber2(float a, float b) {
-	std::mt19937 m_mtRandom;
 	std::uniform_real_distribution<float> randomNum(a, b);
-	return randomNum(m_mtRandom);
+	return randomNum(Enemy::m_Generator);
 }
 
-Enemy::Enemy() :
-	GameObject(std::make_shared<Model>("res/models/drone/Weatley.obj", "res/models/drone/")),
-    pos(randomNumber2(0.f,70.f), 0.0f, randomNumber2(0.f,70.f)),
+Enemy::Enemy(std::shared_ptr<Model> model) :
+	GameObject(model),
+    //pos(randomNumber2(0.f,70.f), 0.0f, randomNumber2(0.f,70.f)),
     attackDamage(25),
     health(100),
     dead(false)
-{}
-
-glm::mat4 Enemy::getCoords() {
-	enemy.ApplyTransform(
+{
+	ApplyTransform(
 		Transformation(
 			TranformType::Translate,
-			pos,
-			glm::vec3(0.f, 2.f, 0.f),
+			glm::vec3(),
+			glm::vec3(randomNumber2(-2.f, 2.f), 2.0f, randomNumber2(-2.f, 2.f)),
 			0.0f
 		)
 	);
-
-	glm::mat4 Menemy = enemy.ApplyTransform(
+	ApplyTransform(
 		Transformation(
 			TranformType::Scale,
-			glm::vec3(0.f),
+			glm::vec3(),
 			glm::vec3(0.016f),
 			0.0f
 		)
 	);
-	return Menemy;
 }
 
-void Enemy::spawnEnemy() {
-	if (dead) return;
-	enemy.GetModel()->Draw("simple", getCoords());
+glm::vec3 Enemy::getCoords() {
+	return GetModelMatrix()[3];
 }
 
 void Enemy::reduceHealth() {
