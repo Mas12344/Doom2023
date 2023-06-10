@@ -144,6 +144,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp" />
+    <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="Resource_Manager.cpp" />
     <ClCompile Include="Shader.cpp" />
@@ -152,7 +153,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h" />
+    <ClInclude Include="GameObject.h" />
     <ClInclude Include="Model.h" />
+    <ClInclude Include="Player.h" />
     <ClInclude Include="Resource_Manager.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="stb_image.h" />
