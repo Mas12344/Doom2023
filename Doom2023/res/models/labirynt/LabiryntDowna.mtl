@@ -1,0 +1,24 @@
+# Blender 3.5.1 MTL File: 'LabiryntDowna.blend'
+# www.blender.org
+
+newmtl FloorTexture
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd monastery_stone_floor_diff_4k.jpg
+map_Ns monastery_stone_floor_rough_4k.png
+map_Bump -bm 1.000000 monastery_stone_floor_nor_gl_4k.png
+
+newmtl WallTexture
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd sandstone_brick_wall_01_diff_4k.jpg
+map_Ns sandstone_brick_wall_01_rough_4k.png
+map_Bump -bm 1.000000 sandstone_brick_wall_01_nor_gl_4k.png

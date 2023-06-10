@@ -6,6 +6,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <memory>
+
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 #include "Resource_Manager.h"
@@ -14,6 +16,7 @@
 #include "Enemy.h"
 #include "camera.h"
 #include "Text_Renderer.h"
+#include "GameObject.h"
 
 
 float deltaTime = 0.0f;
@@ -29,7 +32,7 @@ bool firstMouse = true;
 
 Enemy *enemies[40];
 
-Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
+Camera camera(glm::vec3(0.0f, 2.0f, 3.0f));
 
 void processInput(GLFWwindow* window)
 {
@@ -107,6 +110,7 @@ int main() {
     if (!glfwInit())
         return -1;
 
+
     window = glfwCreateWindow(screenWidth, screenHeight, "Doom 2023 Copyright", NULL, NULL);
     if (!window)
     {
@@ -124,17 +128,67 @@ int main() {
     glfwSetErrorCallback(error_callback);
 
     stbi_set_flip_vertically_on_load(false);
+
+
+    auto labirynt_model = std::make_shared<Model>("res/models/labirynt/LabiryntDowna.obj", "res/models/labirynt/");    
+    auto drone_model = std::make_shared<Model>("res/models/drone/Weatley.obj", "res/models/drone/");
+
+    GameObject labirynt = GameObject(labirynt_model);
+    glm::mat4 Mlabirynt = labirynt.ApplyTransform(
+        Transformation(
+            TranformType::Scale,
+            glm::vec3(0.f),
+            glm::vec3(1.f),
+            0.0f
+        )
+    );
+
+    GameObject drone1 = GameObject(drone_model);
+    drone1.ApplyTransform(
+        Transformation(
+            TranformType::Translate,
+            glm::vec3(0.f),
+            glm::vec3(0.f, 2.f, 0.f),
+            0.0f
+        )
+    );
+    glm::mat4 Mdrone1 = drone1.ApplyTransform(
+        Transformation(
+            TranformType::Scale,
+            glm::vec3(0.f),
+            glm::vec3(0.016f),
+            0.0f
+        )
+    );
+
+    GameObject drone2 = GameObject(drone_model);
+    drone2.ApplyTransform(
+        Transformation(
+            TranformType::Translate,
+            glm::vec3(0.f),
+            glm::vec3(1.5f, 2.f, 0.f),
+            0.0f
+        )
+    );
+    glm::mat4 Mdrone2 = drone2.ApplyTransform(
+        Transformation(
+            TranformType::Scale,
+            glm::vec3(0.f),
+            glm::vec3(0.016f),
+            0.0f
+        )
+    );
+
     Text = new TextRenderer(screenWidth, screenHeight);
 
     glEnable(GL_DEPTH_TEST);
-
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 
-
     //Model sponza = Model("res/models/drone/Weatley.obj", "res/models/drone/");
     //sponza.m_modelmatrix = glm::scale(sponza.m_modelmatrix, glm::vec3(0.01f));
+
     ResourceManager::LoadShader("res/shaders/model.vs", "res/shaders/model.fs", nullptr, "simple");
 
     Text->Load("res/sans.ttf",20);
@@ -157,13 +211,16 @@ int main() {
         auto s = ResourceManager::GetShader("simple").Use();
         s.SetMatrix4("V", V);
         s.SetMatrix4("P", P);
-    
+   
+        labirynt.GetModel()->Draw("simple", Mlabirynt);
+        drone1.GetModel()->Draw("simple", Mdrone1);
+        drone2.GetModel()->Draw("simple", Mdrone2);
+
         for (int i = 0; i < 40; i++) {
             enemies[i]->spawnEnemy();
         }
         //Text->RenderText("Dupa", screenWidth/2, screenHeight/2, 1.0f); //napisz na ekranie napis "Dupa"
-        
-        //sponza.Draw("simple");
+
         glfwSwapBuffers(window);
 
         glfwPollEvents();
