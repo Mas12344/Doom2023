@@ -155,10 +155,12 @@ int main() {
 
     auto labirynt_model = std::make_shared<Model>("res/models/labirynt/LabiryntDowna.obj", "res/models/labirynt/");    
     auto drone_model = std::make_shared<Model>("res/models/drone/Weatley.obj", "res/models/drone/");
+
     auto pgun_model = std::make_shared<Model>("res/models/portalgun/portal-gun.obj", "res/models/portalgun/");
 
-
     GameObject labirynt = GameObject(labirynt_model);
+    GameObject doomguy = GameObject(doomguy_model);
+
     glm::mat4 Mlabirynt = labirynt.ApplyTransform(
         Transformation(
             TranformType::Scale,
@@ -167,7 +169,9 @@ int main() {
             0.0f
         )
     );
+
     GameObject pgun = GameObject(pgun_model);
+
     Text = new TextRenderer(screenWidth, screenHeight);
 
     glEnable(GL_DEPTH_TEST);
@@ -199,7 +203,8 @@ int main() {
         s.SetMatrix4("P", P);
    
         labirynt.GetModel()->Draw("simple", Mlabirynt);
-        if(!checkIfEndGame())
+        doomguy.GetModel()->Draw("simple", Mdoomguy);
+        //if(!checkIfEndGame())
         for (int i = 0; i < 40; i++) {
             auto m = enemies[i]->GetModelMatrix();
             enemies[i]->GetModel()->Draw("simple", m);
