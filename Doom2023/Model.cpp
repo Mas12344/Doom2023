@@ -1,7 +1,7 @@
 #include "Model.h"
 #include <iostream>
 
-Model::Model(const char* filepath, const char* mtlpath) : m_modelmatrix(glm::mat4(1.0f))
+Model::Model(const char* filepath, const char* mtlpath)
 {
 	std::string Obj_path = filepath;
 	tinyobj::ObjReaderConfig reader_config;
@@ -111,10 +111,10 @@ Model::Model(const char* filepath, const char* mtlpath) : m_modelmatrix(glm::mat
 	}
 }
 
-void Model::Draw(const char* shader)
+void Model::Draw(const char* shader, glm::mat4 modelmatrix)
 {
 	auto s = ResourceManager::GetShader(shader);
-	s.SetMatrix4("M", this->m_modelmatrix);
+	s.SetMatrix4("M", modelmatrix);
 	for (auto& [material_id, drawobject] : m_meshes) {
 
 		float* vertices = (float*)drawobject.vertices.data();

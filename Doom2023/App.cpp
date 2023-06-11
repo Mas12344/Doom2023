@@ -6,13 +6,18 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <memory>
+#include <sstream>
+
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 #include "Resource_Manager.h"
 
 #include "Model.h"
+#include "Enemy.h"
 #include "camera.h"
 #include "Text_Renderer.h"
+#include "GameObject.h"
 
 
 float deltaTime = 0.0f;
@@ -26,8 +31,9 @@ float lastX = screenWidth / 2.0f;
 float lastY = screenHeight / 2.0f;
 bool firstMouse = true;
 
+Enemy *enemies[40];
 
-Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
+Camera camera(glm::vec3(0.0f, 2.0f, 3.0f));
 
 void processInput(GLFWwindow* window)
 {
@@ -92,6 +98,33 @@ void error_callback(int error, const char* description) {
     fputs(description, stderr);
 }
 
+void spawnEnemies(std::shared_ptr<Model> model) {
+    for (int i = 0; i < 40; i++) {
+        Enemy* enemy = new Enemy(model);
+        enemies[i] = enemy;
+    }
+}
+
+bool checkIfWin(int enemiesKilled) {
+    if (enemiesKilled < 10) return false;
+    return true;
+}
+
+bool checkIfGameOver() {
+    return false; //player->hp <=0
+}
+
+bool checkIfEndGame() {
+    if (checkIfGameOver()) {
+        Text->RenderText("Game over!", screenWidth / 2 - 25.0f, screenHeight / 2, 1.0f);
+        return true;
+    }
+    else if (checkIfWin(0)) {
+        Text->RenderText("You win!", screenWidth / 2 - 25.0f, screenHeight / 2, 1.0f);
+        return true;
+    }
+    return false;
+}
 
 int main() {
     GLFWwindow* window;
@@ -99,7 +132,8 @@ int main() {
     if (!glfwInit())
         return -1;
 
-    window = glfwCreateWindow(screenWidth, screenHeight, "Hello World", NULL, NULL);
+
+    window = glfwCreateWindow(screenWidth, screenHeight, "Doom 2023 Copyright", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
@@ -116,26 +150,56 @@ int main() {
     glfwSetErrorCallback(error_callback);
 
     stbi_set_flip_vertically_on_load(false);
+
+
+    auto labirynt_model = std::make_shared<Model>("res/models/labirynt/LabiryntDowna.obj", "res/models/labirynt/");    
+    auto drone_model = std::make_shared<Model>("res/models/drone/Weatley.obj", "res/models/drone/");
+    auto doomguy_model = std::make_shared<Model>("res/models/player/super-sayain-goku.obj", "res/models/player/");
+    GameObject labirynt = GameObject(labirynt_model);
+    GameObject doomguy = GameObject(doomguy_model);
+
+    glm::mat4 Mlabirynt = labirynt.ApplyTransform(
+        Transformation(
+            TranformType::Scale,
+            glm::vec3(0.f),
+            glm::vec3(1.f),
+            0.0f
+        )
+    );
+
+    doomguy.ApplyTransform(
+        Transformation(
+            TranformType::Translate,
+            glm::vec3(),
+            glm::vec3(0.0f, 2.0f, 0.0f),
+            0.0f
+        )
+    );
+    glm::mat4 Mdoomguy = doomguy.ApplyTransform(
+        Transformation(
+            TranformType::Scale,
+            glm::vec3(),
+            glm::vec3(0.09f),
+            0.0f
+        )
+    );
     Text = new TextRenderer(screenWidth, screenHeight);
 
     glEnable(GL_DEPTH_TEST);
-
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-
-
-    Model labirynt = Model("res/models/labirynt/LabiryntDowna.obj", "res/models/labirynt/");
-    labirynt.m_modelmatrix = glm::scale(labirynt.m_modelmatrix, glm::vec3(0.1f));
     ResourceManager::LoadShader("res/shaders/model.vs", "res/shaders/model.fs", nullptr, "simple");
 
     Text->Load("res/sans.ttf",20);
+    spawnEnemies(drone_model);
 
     while (!glfwWindowShouldClose(window))
-    {
+    {   
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
+        
 
         processInput(window);
 
@@ -145,14 +209,24 @@ int main() {
 
         glm::mat4 V = camera.GetViewMatrix();
         glm::mat4 P = glm::perspective(glm::radians(camera.Zoom), (float)screenWidth / screenHeight, 0.1f, 50.0f); //Wylicz macierz rzutowania
-
         auto s = ResourceManager::GetShader("simple").Use();
         s.SetMatrix4("V", V);
         s.SetMatrix4("P", P);
+   
+        labirynt.GetModel()->Draw("simple", Mlabirynt);
+        doomguy.GetModel()->Draw("simple", Mdoomguy);
+        //if(!checkIfEndGame())
+        for (int i = 0; i < 40; i++) {
+            auto m = enemies[i]->GetModelMatrix();
+            enemies[i]->GetModel()->Draw("simple", m);
+        }
+        std::stringstream ss;
 
+        ss << "camera: " << camera.Position[0] << ", " << camera.Position[1] << ", " << camera.Position[2];
+        Text->RenderText(ss.str(), 15.f, 15.f, 1.0f);
+        Text->RenderText("0/10 enemies killed", screenWidth/2,15.0f,1.0f);
+        
 
-        labirynt.Draw("simple");
-        Text->RenderText("Dupa", screenWidth/2, screenHeight/2, 1.0f);
         glfwSwapBuffers(window);
 
         glfwPollEvents();

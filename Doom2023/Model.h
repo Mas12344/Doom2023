@@ -14,8 +14,7 @@ struct Attributes {
 class Model {
 public:
 	Model(const char* filepath, const char* mtlpath);
-	void Draw(const char* shader);
-	glm::mat4 m_modelmatrix;
+	void Draw(const char* shader, glm::mat4 modelmatrix);
 
 	~Model();
 private:
