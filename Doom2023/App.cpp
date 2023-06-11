@@ -159,7 +159,6 @@ int main() {
     auto pgun_model = std::make_shared<Model>("res/models/portalgun/portal-gun.obj", "res/models/portalgun/");
 
     GameObject labirynt = GameObject(labirynt_model);
-    GameObject doomguy = GameObject(doomguy_model);
 
     glm::mat4 Mlabirynt = labirynt.ApplyTransform(
         Transformation(
@@ -203,7 +202,6 @@ int main() {
         s.SetMatrix4("P", P);
    
         labirynt.GetModel()->Draw("simple", Mlabirynt);
-        doomguy.GetModel()->Draw("simple", Mdoomguy);
         //if(!checkIfEndGame())
         for (int i = 0; i < 40; i++) {
             auto m = enemies[i]->GetModelMatrix();
