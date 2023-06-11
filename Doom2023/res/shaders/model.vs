@@ -11,7 +11,8 @@ in vec3 normal;
 in vec2 texCoord0;
 
 out vec2 iTexCoord0;
-
+out vec3 normals;
+out vec3 fragpos;
 
 void main(void) {
     vec4 vert = vec4(vertex, 1);
@@ -19,4 +20,6 @@ void main(void) {
 
     gl_Position=P*V*M*vert;
     iTexCoord0 = texCoord0;
+    normals=mat3(transpose(inverse(M))) * normal;
+    fragpos = vec3(M*vert);
 }

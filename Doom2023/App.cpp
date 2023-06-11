@@ -32,6 +32,7 @@ float lastY = screenHeight / 2.0f;
 bool firstMouse = true;
 
 Enemy *enemies[40];
+float point_lights[40 * 3];
 
 Camera camera(glm::vec3(0.0f, 2.0f, 3.0f));
 
@@ -191,16 +192,29 @@ int main() {
 
         processInput(window);
 
-        glClearColor(0.09375f, 0.09375f, 0.09375f, 1.0f);
+        glClearColor(0.02f, 0.16f, 0.21f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
         glm::mat4 V = camera.GetViewMatrix();
-        glm::mat4 P = glm::perspective(glm::radians(camera.Zoom), (float)screenWidth / screenHeight, 0.1f, 50.0f); //Wylicz macierz rzutowania
+        glm::vec3 lightdir = glm::vec3(0.f, 0.f, -1.f);
+        lightdir = glm::vec4(lightdir,0.f)*V;
+        glm::mat4 P = glm::perspective(glm::radians(camera.Zoom), (float)screenWidth / screenHeight, 0.01f, 50.0f); //Wylicz macierz rzutowania
         auto s = ResourceManager::GetShader("simple").Use();
         s.SetMatrix4("V", V);
         s.SetMatrix4("P", P);
    
+        for (int i = 0; i < 40; ++i) {
+            auto pos = enemies[i]->getCoords();
+            point_lights[i * 3 + 0] = pos[0];
+            point_lights[i * 3 + 1] = pos[1];
+            point_lights[i * 3 + 2] = pos[2];
+        }
+
+        s.SetVector3fv("lights", 40, point_lights);
+        s.SetVector3f("viewPos", camera.Position);
+        s.SetVector3f("cameradir", lightdir);
+
         labirynt.GetModel()->Draw("simple", Mlabirynt);
         //if(!checkIfEndGame())
         for (int i = 0; i < 40; i++) {

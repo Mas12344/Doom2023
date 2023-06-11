@@ -88,6 +88,12 @@ void Shader::SetVector3f(const char *name, const glm::vec3 &value, bool useShade
         this->Use();
     glUniform3f(glGetUniformLocation(this->ID, name), value.x, value.y, value.z);
 }
+void Shader::SetVector3fv(const char* name, unsigned int count, float* vector, bool useShader)
+{
+    if (useShader)
+        this->Use();
+    glUniform3fv(glGetUniformLocation(this->ID, name), count, vector);
+}
 void Shader::SetVector4f(const char *name, float x, float y, float z, float w, bool useShader)
 {
     if (useShader)
