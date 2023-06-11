@@ -105,6 +105,27 @@ void spawnEnemies(std::shared_ptr<Model> model) {
     }
 }
 
+bool checkIfWin(int enemiesKilled) {
+    if (enemiesKilled < 10) return false;
+    return true;
+}
+
+bool checkIfGameOver() {
+    return false; //player->hp <=0
+}
+
+bool checkIfEndGame() {
+    if (checkIfGameOver()) {
+        Text->RenderText("Game over!", screenWidth / 2 - 25.0f, screenHeight / 2, 1.0f);
+        return true;
+    }
+    else if (checkIfWin(0)) {
+        Text->RenderText("You win!", screenWidth / 2 - 25.0f, screenHeight / 2, 1.0f);
+        return true;
+    }
+    return false;
+}
+
 int main() {
     GLFWwindow* window;
 
@@ -156,10 +177,11 @@ int main() {
     spawnEnemies(drone_model);
 
     while (!glfwWindowShouldClose(window))
-    {
+    {   
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
+        
 
         processInput(window);
 
@@ -174,14 +196,17 @@ int main() {
         s.SetMatrix4("P", P);
    
         labirynt.GetModel()->Draw("simple", Mlabirynt);
-
+        if(!checkIfEndGame())
         for (int i = 0; i < 40; i++) {
             auto m = enemies[i]->GetModelMatrix();
             enemies[i]->GetModel()->Draw("simple", m);
         }
         std::stringstream ss;
+
         ss << "camera: " << camera.Position[0] << ", " << camera.Position[1] << ", " << camera.Position[2];
-        Text->RenderText(ss.str(), 15.f, 15.f, 1.0f); //napisz na ekranie napis "Dupa"
+        Text->RenderText(ss.str(), 15.f, 15.f, 1.0f);
+        Text->RenderText("0/10 enemies killed", screenWidth/2,15.0f,1.0f);
+        
 
         glfwSwapBuffers(window);
 
