@@ -154,8 +154,10 @@ int main() {
 
     auto labirynt_model = std::make_shared<Model>("res/models/labirynt/LabiryntDowna.obj", "res/models/labirynt/");    
     auto drone_model = std::make_shared<Model>("res/models/drone/Weatley.obj", "res/models/drone/");
-
+    auto doomguy_model = std::make_shared<Model>("res/models/player/super-sayain-goku.obj", "res/models/player/");
     GameObject labirynt = GameObject(labirynt_model);
+    GameObject doomguy = GameObject(doomguy_model);
+
     glm::mat4 Mlabirynt = labirynt.ApplyTransform(
         Transformation(
             TranformType::Scale,
@@ -165,6 +167,22 @@ int main() {
         )
     );
 
+    doomguy.ApplyTransform(
+        Transformation(
+            TranformType::Translate,
+            glm::vec3(),
+            glm::vec3(0.0f, 2.0f, 0.0f),
+            0.0f
+        )
+    );
+    glm::mat4 Mdoomguy = doomguy.ApplyTransform(
+        Transformation(
+            TranformType::Scale,
+            glm::vec3(),
+            glm::vec3(0.09f),
+            0.0f
+        )
+    );
     Text = new TextRenderer(screenWidth, screenHeight);
 
     glEnable(GL_DEPTH_TEST);
@@ -196,7 +214,8 @@ int main() {
         s.SetMatrix4("P", P);
    
         labirynt.GetModel()->Draw("simple", Mlabirynt);
-        if(!checkIfEndGame())
+        doomguy.GetModel()->Draw("simple", Mdoomguy);
+        //if(!checkIfEndGame())
         for (int i = 0; i < 40; i++) {
             auto m = enemies[i]->GetModelMatrix();
             enemies[i]->GetModel()->Draw("simple", m);
