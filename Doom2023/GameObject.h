@@ -25,6 +25,7 @@ public:
 	void SetModel(std::shared_ptr<Model> model);
 	glm::mat4 ApplyTransform(Transformation t);
 	inline glm::mat4 GetModelMatrix() const { return m_ModelMatrix; };
+	inline void SetModelMatrix(glm::mat4 mm) { m_ModelMatrix = mm; };
 
 protected:
 	std::shared_ptr<Model> m_Model;

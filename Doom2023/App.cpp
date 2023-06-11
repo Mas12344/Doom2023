@@ -168,23 +168,6 @@ int main() {
         )
     );
     GameObject pgun = GameObject(pgun_model);
-    pgun.ApplyTransform(
-        Transformation(
-            TranformType::Translate,
-            glm::vec3(0.f),
-            glm::vec3(0.f, 2.f, 0.f),
-            0.0f
-        )
-    );
-    glm::mat4 Mpgun = pgun.ApplyTransform(
-        Transformation(
-            TranformType::Scale,
-            glm::vec3(0.f),
-            glm::vec3(0.032f),
-            0.0f
-        )
-    );
-
     Text = new TextRenderer(screenWidth, screenHeight);
 
     glEnable(GL_DEPTH_TEST);
@@ -221,6 +204,35 @@ int main() {
             auto m = enemies[i]->GetModelMatrix();
             enemies[i]->GetModel()->Draw("simple", m);
         }
+
+        glm::mat4 Mpgun = glm::mat4(1);
+        Mpgun = glm::inverse(camera.GetViewMatrix());
+        pgun.SetModelMatrix(Mpgun);
+        pgun.ApplyTransform(
+            Transformation(
+                TranformType::Translate,
+                glm::vec3(),
+                glm::vec3(0.04f, -0.04f, -0.15f),
+                0.0f
+            )
+        );
+        pgun.ApplyTransform(
+            Transformation(
+                TranformType::Rotate,
+                glm::vec3(0.f, 1.f, 0.f),
+                glm::vec3(),
+                glm::radians(180.f)
+            )
+        );
+
+        Mpgun = pgun.ApplyTransform(
+            Transformation(
+                TranformType::Scale,
+                glm::vec3(),
+                glm::vec3(0.012f)
+            )
+        );
+
         pgun.GetModel()->Draw("simple", Mpgun);
 
         std::stringstream ss;
