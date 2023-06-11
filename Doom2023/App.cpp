@@ -7,6 +7,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include <memory>
+#include <sstream>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -97,11 +98,32 @@ void error_callback(int error, const char* description) {
     fputs(description, stderr);
 }
 
-void spawnEnemies() {
+void spawnEnemies(std::shared_ptr<Model> model) {
     for (int i = 0; i < 40; i++) {
-        Enemy* enemy = new Enemy;
+        Enemy* enemy = new Enemy(model);
         enemies[i] = enemy;
     }
+}
+
+bool checkIfWin(int enemiesKilled) {
+    if (enemiesKilled < 10) return false;
+    return true;
+}
+
+bool checkIfGameOver() {
+    return false; //player->hp <=0
+}
+
+bool checkIfEndGame() {
+    if (checkIfGameOver()) {
+        Text->RenderText("Game over!", screenWidth / 2 - 25.0f, screenHeight / 2, 1.0f);
+        return true;
+    }
+    else if (checkIfWin(0)) {
+        Text->RenderText("You win!", screenWidth / 2 - 25.0f, screenHeight / 2, 1.0f);
+        return true;
+    }
+    return false;
 }
 
 int main() {
@@ -143,62 +165,23 @@ int main() {
         )
     );
 
-    GameObject drone1 = GameObject(drone_model);
-    drone1.ApplyTransform(
-        Transformation(
-            TranformType::Translate,
-            glm::vec3(0.f),
-            glm::vec3(0.f, 2.f, 0.f),
-            0.0f
-        )
-    );
-    glm::mat4 Mdrone1 = drone1.ApplyTransform(
-        Transformation(
-            TranformType::Scale,
-            glm::vec3(0.f),
-            glm::vec3(0.016f),
-            0.0f
-        )
-    );
-
-    GameObject drone2 = GameObject(drone_model);
-    drone2.ApplyTransform(
-        Transformation(
-            TranformType::Translate,
-            glm::vec3(0.f),
-            glm::vec3(1.5f, 2.f, 0.f),
-            0.0f
-        )
-    );
-    glm::mat4 Mdrone2 = drone2.ApplyTransform(
-        Transformation(
-            TranformType::Scale,
-            glm::vec3(0.f),
-            glm::vec3(0.016f),
-            0.0f
-        )
-    );
-
     Text = new TextRenderer(screenWidth, screenHeight);
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-
-    //Model sponza = Model("res/models/drone/Weatley.obj", "res/models/drone/");
-    //sponza.m_modelmatrix = glm::scale(sponza.m_modelmatrix, glm::vec3(0.01f));
-
     ResourceManager::LoadShader("res/shaders/model.vs", "res/shaders/model.fs", nullptr, "simple");
 
     Text->Load("res/sans.ttf",20);
-    spawnEnemies();
+    spawnEnemies(drone_model);
 
     while (!glfwWindowShouldClose(window))
-    {
+    {   
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
+        
 
         processInput(window);
 
@@ -213,13 +196,17 @@ int main() {
         s.SetMatrix4("P", P);
    
         labirynt.GetModel()->Draw("simple", Mlabirynt);
-        drone1.GetModel()->Draw("simple", Mdrone1);
-        drone2.GetModel()->Draw("simple", Mdrone2);
-
+        if(!checkIfEndGame())
         for (int i = 0; i < 40; i++) {
-            enemies[i]->spawnEnemy();
+            auto m = enemies[i]->GetModelMatrix();
+            enemies[i]->GetModel()->Draw("simple", m);
         }
-        //Text->RenderText("Dupa", screenWidth/2, screenHeight/2, 1.0f); //napisz na ekranie napis "Dupa"
+        std::stringstream ss;
+
+        ss << "camera: " << camera.Position[0] << ", " << camera.Position[1] << ", " << camera.Position[2];
+        Text->RenderText(ss.str(), 15.f, 15.f, 1.0f);
+        Text->RenderText("0/10 enemies killed", screenWidth/2,15.0f,1.0f);
+        
 
         glfwSwapBuffers(window);
 

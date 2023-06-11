@@ -1,19 +1,22 @@
 #pragma once
 #include "Model.h"
+#include "GameObject.h"
+#include <random>
 
-class Enemy
+class Enemy: public GameObject
 {
 private:
-	Model model = Model("res/models/drone/Weatley.obj", "res/models/drone/");
-	glm::vec3 pos;
+	//glm::vec3 pos;
 	float attackDamage;
 	int health;
 	bool dead;
 	void checkIfDead(int hp);
+	glm::vec3 getCoords();
+	static std::random_device m_RandomDevice;
 public:
-	Enemy();
+	static std::mt19937 m_Generator;
+	Enemy(std::shared_ptr<Model> model);
 	~Enemy();
-	void spawnEnemy();
 	void reduceHealth();
 };
 

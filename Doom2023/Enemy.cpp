@@ -1,24 +1,39 @@
 #include "Enemy.h"
-#include <random>
+std::random_device Enemy::m_RandomDevice{};
+std::mt19937 Enemy::m_Generator{ Enemy::m_RandomDevice() };
 
 float randomNumber2(float a, float b) {
-	std::mt19937 m_mtRandom;
 	std::uniform_real_distribution<float> randomNum(a, b);
-	return randomNum(m_mtRandom);
+	return randomNum(Enemy::m_Generator);
 }
 
-Enemy::Enemy(): 
-	pos(randomNumber2(10.f, 10.f), 0.0f, randomNumber2(10.f, 10.f)),
-	health(100),
-	dead(false),
-	attackDamage(25)
-{}
-
-void Enemy::spawnEnemy() {
+Enemy::Enemy(std::shared_ptr<Model> model) :
+	GameObject(model),
+    attackDamage(25),
+    health(100),
+    dead(false)
+{
 	if (dead) return;
-	model.m_modelmatrix = glm::scale(model.m_modelmatrix, glm::vec3(0.01f));
-	//glTranslatef(pos.x,pos.y,pos.z);
-	model.Draw("simple");
+	ApplyTransform(
+		Transformation(
+			TranformType::Translate,
+			glm::vec3(),
+			glm::vec3(randomNumber2(-18.f, 18.f), 2.0f, randomNumber2(-18.f, 18.f)),
+			0.0f
+		)
+	);
+	ApplyTransform(
+		Transformation(
+			TranformType::Scale,
+			glm::vec3(),
+			glm::vec3(0.016f),
+			0.0f
+		)
+	);
+}
+
+glm::vec3 Enemy::getCoords() {
+	return GetModelMatrix()[3];
 }
 
 void Enemy::reduceHealth() {
