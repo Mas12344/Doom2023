@@ -148,12 +148,15 @@ int main() {
     glfwSetScrollCallback(window, scroll_callback);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetErrorCallback(error_callback);
+    glfwSwapInterval(1);
 
     stbi_set_flip_vertically_on_load(false);
 
 
     auto labirynt_model = std::make_shared<Model>("res/models/labirynt/LabiryntDowna.obj", "res/models/labirynt/");    
     auto drone_model = std::make_shared<Model>("res/models/drone/Weatley.obj", "res/models/drone/");
+    auto pgun_model = std::make_shared<Model>("res/models/portalgun/portal-gun.obj", "res/models/portalgun/");
+
 
     GameObject labirynt = GameObject(labirynt_model);
     glm::mat4 Mlabirynt = labirynt.ApplyTransform(
@@ -161,6 +164,23 @@ int main() {
             TranformType::Scale,
             glm::vec3(0.f),
             glm::vec3(1.f),
+            0.0f
+        )
+    );
+    GameObject pgun = GameObject(pgun_model);
+    pgun.ApplyTransform(
+        Transformation(
+            TranformType::Translate,
+            glm::vec3(0.f),
+            glm::vec3(0.f, 2.f, 0.f),
+            0.0f
+        )
+    );
+    glm::mat4 Mpgun = pgun.ApplyTransform(
+        Transformation(
+            TranformType::Scale,
+            glm::vec3(0.f),
+            glm::vec3(0.032f),
             0.0f
         )
     );
@@ -201,9 +221,10 @@ int main() {
             auto m = enemies[i]->GetModelMatrix();
             enemies[i]->GetModel()->Draw("simple", m);
         }
-        std::stringstream ss;
+        pgun.GetModel()->Draw("simple", Mpgun);
 
-        ss << "camera: " << camera.Position[0] << ", " << camera.Position[1] << ", " << camera.Position[2];
+        std::stringstream ss;
+        ss << "FPS: " << 1.f/deltaTime;
         Text->RenderText(ss.str(), 15.f, 15.f, 1.0f);
         Text->RenderText("0/10 enemies killed", screenWidth/2,15.0f,1.0f);
         
