@@ -148,13 +148,16 @@ int main() {
     glfwSetScrollCallback(window, scroll_callback);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetErrorCallback(error_callback);
+    glfwSwapInterval(1);
 
     stbi_set_flip_vertically_on_load(false);
 
 
     auto labirynt_model = std::make_shared<Model>("res/models/labirynt/LabiryntDowna.obj", "res/models/labirynt/");    
     auto drone_model = std::make_shared<Model>("res/models/drone/Weatley.obj", "res/models/drone/");
-    auto doomguy_model = std::make_shared<Model>("res/models/player/super-sayain-goku.obj", "res/models/player/");
+
+    auto pgun_model = std::make_shared<Model>("res/models/portalgun/portal-gun.obj", "res/models/portalgun/");
+
     GameObject labirynt = GameObject(labirynt_model);
     GameObject doomguy = GameObject(doomguy_model);
 
@@ -167,22 +170,8 @@ int main() {
         )
     );
 
-    doomguy.ApplyTransform(
-        Transformation(
-            TranformType::Translate,
-            glm::vec3(),
-            glm::vec3(0.0f, 2.0f, 0.0f),
-            0.0f
-        )
-    );
-    glm::mat4 Mdoomguy = doomguy.ApplyTransform(
-        Transformation(
-            TranformType::Scale,
-            glm::vec3(),
-            glm::vec3(0.09f),
-            0.0f
-        )
-    );
+    GameObject pgun = GameObject(pgun_model);
+
     Text = new TextRenderer(screenWidth, screenHeight);
 
     glEnable(GL_DEPTH_TEST);
@@ -220,9 +209,39 @@ int main() {
             auto m = enemies[i]->GetModelMatrix();
             enemies[i]->GetModel()->Draw("simple", m);
         }
-        std::stringstream ss;
 
-        ss << "camera: " << camera.Position[0] << ", " << camera.Position[1] << ", " << camera.Position[2];
+        glm::mat4 Mpgun = glm::mat4(1);
+        Mpgun = glm::inverse(camera.GetViewMatrix());
+        pgun.SetModelMatrix(Mpgun);
+        pgun.ApplyTransform(
+            Transformation(
+                TranformType::Translate,
+                glm::vec3(),
+                glm::vec3(0.04f, -0.04f, -0.15f),
+                0.0f
+            )
+        );
+        pgun.ApplyTransform(
+            Transformation(
+                TranformType::Rotate,
+                glm::vec3(0.f, 1.f, 0.f),
+                glm::vec3(),
+                glm::radians(180.f)
+            )
+        );
+
+        Mpgun = pgun.ApplyTransform(
+            Transformation(
+                TranformType::Scale,
+                glm::vec3(),
+                glm::vec3(0.012f)
+            )
+        );
+
+        pgun.GetModel()->Draw("simple", Mpgun);
+
+        std::stringstream ss;
+        ss << "FPS: " << 1.f/deltaTime;
         Text->RenderText(ss.str(), 15.f, 15.f, 1.0f);
         Text->RenderText("0/10 enemies killed", screenWidth/2,15.0f,1.0f);
         

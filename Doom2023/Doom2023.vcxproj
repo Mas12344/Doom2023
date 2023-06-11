@@ -157,7 +157,6 @@
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="Model.h" />
-    <ClInclude Include="Player.h" />
     <ClInclude Include="Resource_Manager.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="stb_image.h" />
