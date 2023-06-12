@@ -10,10 +10,12 @@ Raycaster::Raycaster() :
 Raycaster::~Raycaster()
 {}
 
-void Raycaster::Update(Camera& cam, float dt,GLFWwindow *windo, void mouseCallback(GLFWwindow* window, double xposIn, double yposIn), Enemy* enemies[40])
+void Raycaster::Update(Camera& cam, float dt, int width, int height, Enemy* enemies[40])
 {	
-	glfwSetCursorPosCallback(windo, mouseCallback);
+	//glfwSetCursorPosCallback(windo, mouseCallback);
 	// Check if ray casting is true
+	m_screenWidth = width;
+	m_screenHeight = height;
 	if (m_castRay)
 	{
 		// Cast ray and check for collision
@@ -27,14 +29,14 @@ void Raycaster::Update(Camera& cam, float dt,GLFWwindow *windo, void mouseCallba
 Ray Raycaster::CastRayFromMouse(Camera& cam)
 {
 	// screen space (viewport coordinates)
-	float x = (2.0f * m_mouseX) / 640;
-	float y = 1.0f - (2.0f * m_mouseY) / 480;
+	float x = (2.0f * m_mouseX) / m_screenWidth;
+	float y = 1.0f - (2.0f * m_mouseY) / m_screenHeight;
 	float z = 1.0f;
-
+	
 	// normalised device space
 	glm::vec3 mouseNdcCoords = glm::vec3(x, y, z);
 	glm::vec4 mouseClipCoords = glm::vec4(mouseNdcCoords.x, mouseNdcCoords.y, -1.0f, 1.0f);
-	glm::mat4 invProjMat = glm::inverse(cam.GetViewMatrix());
+	glm::mat4 invProjMat = glm::inverse(glm::perspective(glm::radians(cam.Zoom), (float)m_screenWidth / m_screenHeight, 0.01f, 50.0f));
 	glm::vec4 eyeCoords = invProjMat * mouseClipCoords;
 	eyeCoords = glm::vec4(eyeCoords.x, eyeCoords.y, -1.0f, 0.0f);
 	glm::mat4 invViewMat = glm::inverse(cam.GetViewMatrix());
@@ -65,38 +67,21 @@ bool Raycaster::RaySphere(Camera& cam, glm::vec3 RayDirWorld, double SphereRadiu
 	long double c = glm::dot(v, v) - SphereRadius * SphereRadius;
 	long double b_squared_minus_4ac = b * b + (-4.0) * a * c;
 
-	if (b_squared_minus_4ac == 0)
-	{
-		// One real root 
-		return true;
-	}
-	else if (b_squared_minus_4ac > 0)
-	{
-		// Two real roots 
-		long double x1 = (-b - sqrt(b_squared_minus_4ac)) / (2.0 * a);
-		long double x2 = (-b + sqrt(b_squared_minus_4ac)) / (2.0 * a);
-
-		if (x1 >= 0.0 || x2 >= 0.0)
-			return true;
-		if (x1 < 0.0 || x2 >= 0.0)
-			return true;
-	}
-
-	// No real roots
-	return false;
+	return b_squared_minus_4ac >= 0;
 }
 
 void Raycaster::CheckRaySphereCollision(Camera& cam, Enemy* enemies[40])
 {
-	for (auto i = 0; i != 40; ++i)
+	for (auto i = 0; i < 40; ++i)
 	{
-		m_collision = RaySphere(cam, m_ray.dir, 3.0f, enemies[i]->GetModelMatrix()[3].x, enemies[i]->GetModelMatrix()[3].y, enemies[i]->GetModelMatrix()[3].z);
+		m_collision = RaySphere(cam, m_ray.dir, 1.0f, enemies[i]->GetModelMatrix()[3].x, enemies[i]->GetModelMatrix()[3].y, enemies[i]->GetModelMatrix()[3].z);
 
 		// Check if the ray is colliding with the sphere
 		if (m_collision)
 		{
 			// Pass in the value the iterator is pointing to to the OnEnemyHit() function
 			OnEnemyHit(enemies[i]);
+			return;
 		}
 	}
 }

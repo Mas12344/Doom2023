@@ -44,5 +44,15 @@ void Enemy::reduceHealth() {
 void Enemy::checkIfDead(int hp) {
 	if (hp <= 0) {
 		dead = true;
+		//glm::mat4 m(1.f);
+		//SetModelMatrix(m);
+		ApplyTransform(
+			Transformation(
+				TranformType::Translate,
+				glm::vec3(),
+				glm::vec3(0.f, -100.f, 0.f),
+				0.0f
+			)
+		);
 	}
 }
