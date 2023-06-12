@@ -10,9 +10,9 @@ Raycaster::Raycaster() :
 Raycaster::~Raycaster()
 {}
 
-void Raycaster::Update(Camera& cam, float dt, void mouseCallback(GLFWwindow* window, double xposIn, double yposIn), Enemy* enemies[40])
-{
-
+void Raycaster::Update(Camera& cam, float dt,GLFWwindow *windo, void mouseCallback(GLFWwindow* window, double xposIn, double yposIn), Enemy* enemies[40])
+{	
+	glfwSetCursorPosCallback(windo, mouseCallback);
 	// Check if ray casting is true
 	if (m_castRay)
 	{

@@ -29,7 +29,7 @@ public:
 	void operator=(Raycaster const&) = delete;
 
 	void ProcessInput(Camera& cam, float dt, void mouseCallback(GLFWwindow* window, double xposIn, double yposIn));
-	void Update(Camera& cam, float dt, void mouseCallback(GLFWwindow* window, double xposIn, double yposIn), Enemy *enemies[40]);
+	void Update(Camera& cam, float dt,GLFWwindow *windo, void mouseCallback(GLFWwindow* window, double xposIn, double yposIn), Enemy *enemies[40]);
 
 	void CastRay() { m_castRay = true; }
 	Ray& GetRay() { return m_ray; }
