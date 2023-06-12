@@ -9,6 +9,7 @@
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Text_Renderer.cpp" />
+    <ClCompile Include="Raycaster.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h" />
@@ -20,5 +21,6 @@
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Text_Renderer.h" />
+    <ClInclude Include="Raycaster.h" />
   </ItemGroup>
 </Project>
