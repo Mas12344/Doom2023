@@ -18,7 +18,7 @@
 #include "camera.h"
 #include "Text_Renderer.h"
 #include "GameObject.h"
-
+#include "Raycaster.h"
 
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
@@ -36,6 +36,8 @@ float point_lights[40 * 3];
 
 Camera camera(glm::vec3(0.0f, 2.0f, 3.0f));
 
+Raycaster *raycaster = new Raycaster;
+
 void processInput(GLFWwindow* window)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -49,11 +51,43 @@ void processInput(GLFWwindow* window)
         camera.ProcessKeyboard(LEFT, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         camera.ProcessKeyboard(RIGHT, deltaTime);
+    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+        raycaster->CastRay();
 }
 
 TextRenderer *Text;
 
+float enemydist(Camera& cam, Enemy* e) {
+    float x = e->GetModelMatrix()[3].x - cam.Position.x;
+    float y = e->GetModelMatrix()[3].y - cam.Position.y;
+    float z = e->GetModelMatrix()[3].z - cam.Position.z;
+    return x * x + y * y + z * z;
+}
 
+void swapenemy(int i, int j) {
+    Enemy* p = enemies[i];
+    enemies[i] = enemies[j];
+    enemies[j] = p;
+}
+
+void sortEnemies(Camera& cam, Enemy* enem[40]) {
+    int i, j, min_idx;
+
+    // One by one move boundary of unsorted subarray
+    for (i = 0; i < 40 - 1; i++) {
+
+        // Find the minimum element in unsorted array
+        min_idx = i;
+        for (j = i + 1; j < 40; j++)
+            if (enemydist(cam, enem[j]) < enemydist(cam, enem[min_idx]))
+                min_idx = j;
+
+        // Swap the found minimum element
+        // with the first element
+        swapenemy(min_idx, i);
+    }
+
+}
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
@@ -106,9 +140,12 @@ void spawnEnemies(std::shared_ptr<Model> model) {
     }
 }
 
-bool checkIfWin(int enemiesKilled) {
-    if (enemiesKilled < 10) return false;
-    return true;
+int checkIfWin() {
+    int enemiesKilled = 0;
+    for (int i = 0; i < 40; i++) {
+        if (enemies[i]->dead) enemiesKilled++;
+    }
+    return enemiesKilled;
 }
 
 bool checkIfGameOver() {
@@ -116,15 +153,7 @@ bool checkIfGameOver() {
 }
 
 bool checkIfEndGame() {
-    if (checkIfGameOver()) {
-        Text->RenderText("Game over!", screenWidth / 2 - 25.0f, screenHeight / 2, 1.0f);
-        return true;
-    }
-    else if (checkIfWin(0)) {
-        Text->RenderText("You win!", screenWidth / 2 - 25.0f, screenHeight / 2, 1.0f);
-        return true;
-    }
-    return false;
+    return checkIfWin() >= 10;
 }
 
 int main() {
@@ -191,6 +220,8 @@ int main() {
         
 
         processInput(window);
+        sortEnemies(camera, enemies);
+        raycaster->Update(camera, deltaTime,screenWidth, screenHeight, enemies);
 
         glClearColor(0.02f, 0.16f, 0.21f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -216,47 +247,54 @@ int main() {
         s.SetVector3f("cameradir", lightdir);
 
         labirynt.GetModel()->Draw("simple", Mlabirynt);
-        //if(!checkIfEndGame())
-        for (int i = 0; i < 40; i++) {
-            auto m = enemies[i]->GetModelMatrix();
-            enemies[i]->GetModel()->Draw("simple", m);
+        if (!checkIfEndGame()) {
+            for (int i = 0; i < 40; i++) {
+                auto m = enemies[i]->GetModelMatrix();
+                enemies[i]->GetModel()->Draw("simple", m);
+            }
+
+            glm::mat4 Mpgun = glm::mat4(1);
+            Mpgun = glm::inverse(camera.GetViewMatrix());
+            pgun.SetModelMatrix(Mpgun);
+            pgun.ApplyTransform(
+                Transformation(
+                    TranformType::Translate,
+                    glm::vec3(),
+                    glm::vec3(0.04f, -0.04f, -0.15f),
+                    0.0f
+                )
+            );
+            pgun.ApplyTransform(
+                Transformation(
+                    TranformType::Rotate,
+                    glm::vec3(0.f, 1.f, 0.f),
+                    glm::vec3(),
+                    glm::radians(180.f)
+                )
+            );
+
+            Mpgun = pgun.ApplyTransform(
+                Transformation(
+                    TranformType::Scale,
+                    glm::vec3(),
+                    glm::vec3(0.012f)
+                )
+            );
+
+            pgun.GetModel()->Draw("simple", Mpgun);
+
+            std::stringstream ss;
+            ss << "FPS: " << 1.f / deltaTime;
+            Text->RenderText(ss.str(), 15.f, 15.f, 1.0f);
+            ss.str("");
+            ss.clear();
+            ss << checkIfWin() << "/10 enemies killed";
+            Text->RenderText(ss.str(), screenWidth / 2, 15.0f, 1.0f);
+            Text->RenderText(".", screenWidth / 2, screenHeight / 2, 1.0f);
         }
-
-        glm::mat4 Mpgun = glm::mat4(1);
-        Mpgun = glm::inverse(camera.GetViewMatrix());
-        pgun.SetModelMatrix(Mpgun);
-        pgun.ApplyTransform(
-            Transformation(
-                TranformType::Translate,
-                glm::vec3(),
-                glm::vec3(0.04f, -0.04f, -0.15f),
-                0.0f
-            )
-        );
-        pgun.ApplyTransform(
-            Transformation(
-                TranformType::Rotate,
-                glm::vec3(0.f, 1.f, 0.f),
-                glm::vec3(),
-                glm::radians(180.f)
-            )
-        );
-
-        Mpgun = pgun.ApplyTransform(
-            Transformation(
-                TranformType::Scale,
-                glm::vec3(),
-                glm::vec3(0.012f)
-            )
-        );
-
-        pgun.GetModel()->Draw("simple", Mpgun);
-
-        std::stringstream ss;
-        ss << "FPS: " << 1.f/deltaTime;
-        Text->RenderText(ss.str(), 15.f, 15.f, 1.0f);
-        Text->RenderText("0/10 enemies killed", screenWidth/2,15.0f,1.0f);
-        
+        else {
+            Text->RenderText("You win!", screenWidth / 2 - 25.0f, screenHeight / 2, 1.0f);
+        }
 
         glfwSwapBuffers(window);
 

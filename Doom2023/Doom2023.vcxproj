@@ -147,6 +147,7 @@
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="Model.cpp" />
+    <ClCompile Include="Raycaster.cpp" />
     <ClCompile Include="Resource_Manager.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Texture.cpp" />
@@ -157,6 +158,7 @@
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="Model.h" />
+    <ClInclude Include="Raycaster.h" />
     <ClInclude Include="Resource_Manager.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="stb_image.h" />
