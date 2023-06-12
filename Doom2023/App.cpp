@@ -240,7 +240,7 @@ int main() {
 
         pgun.GetModel()->Draw("simple", Mpgun);
 
-        //raycaster->Update(camera, deltaTime, mouse_callback, enemies);
+        raycaster->Update(camera, deltaTime, mouse_callback, enemies);
         std::stringstream ss;
         ss << "FPS: " << 1.f/deltaTime;
         Text->RenderText(ss.str(), 15.f, 15.f, 1.0f);

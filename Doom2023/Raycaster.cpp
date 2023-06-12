@@ -96,7 +96,7 @@ void Raycaster::CheckRaySphereCollision(Camera& cam, Enemy* enemies[40])
 		if (m_collision)
 		{
 			// Pass in the value the iterator is pointing to to the OnEnemyHit() function
-			OnEnemyHit((*i));
+			OnEnemyHit(enemies[i]);
 		}
 	}
 }
