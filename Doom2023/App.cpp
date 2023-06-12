@@ -25,7 +25,7 @@ float lastFrame = 0.0f;
 
 int screenWidth = 640;
 int screenHeight = 480;
-
+float Health = 100.0;
 
 float lastX = screenWidth / 2.0f;
 float lastY = screenHeight / 2.0f;
@@ -85,6 +85,8 @@ void sortEnemies(Camera& cam, Enemy* enem[40]) {
         // Swap the found minimum element
         // with the first element
         swapenemy(min_idx, i);
+
+        enem[i]->targetpos = cam.Position;
     }
 
 }
@@ -149,11 +151,11 @@ int checkIfWin() {
 }
 
 bool checkIfGameOver() {
-    return false; //player->hp <=0
+    return Health <= 0 ? true : false;
 }
 
 bool checkIfEndGame() {
-    return checkIfWin() >= 10;
+    return checkIfWin() >= 10 || checkIfGameOver();
 }
 
 int main() {
@@ -221,6 +223,27 @@ int main() {
 
         processInput(window);
         sortEnemies(camera, enemies);
+
+        for (int i = 0; i < 40; i++) {
+            if (!enemies[i]->dead) {
+                // Update the enemy's position based on the target position
+                glm::vec3 direction = enemies[i]->targetpos - enemies[i]->getCoords();
+                float distance = glm::length(direction);
+                glm::vec3 moveVector = glm::normalize(direction) * 7.0f * deltaTime;
+                if (distance >2.5f) {
+                    enemies[i]->ApplyTransform(Transformation(
+                        TranformType::Translate,
+                        glm::vec3(),
+                        moveVector,
+                        0.0f
+                    ));
+                }
+                else {
+                    Health -= 0.1f;
+                }
+            }
+        }
+
         raycaster->Update(camera, deltaTime,screenWidth, screenHeight, enemies);
 
         glClearColor(0.02f, 0.16f, 0.21f, 1.0f);
@@ -291,9 +314,16 @@ int main() {
             ss << checkIfWin() << "/10 enemies killed";
             Text->RenderText(ss.str(), screenWidth / 2, 15.0f, 1.0f);
             Text->RenderText(".", screenWidth / 2, screenHeight / 2, 1.0f);
+            ss.str("");
+            ss.clear();
+            ss << "HP: "<<Health;
+            Text->RenderText(ss.str(), screenWidth/2, screenHeight/10, 1.0f);
         }
-        else {
+        else if(checkIfWin()>=10){
             Text->RenderText("You win!", screenWidth / 2 - 25.0f, screenHeight / 2, 1.0f);
+        }
+        else if (checkIfGameOver()) {
+            Text->RenderText("You died", screenWidth / 2 - 25.0f, screenHeight / 2, 1.0f);
         }
 
         glfwSwapBuffers(window);
