@@ -9,7 +9,7 @@ float randomNumber2(float a, float b) {
 
 Enemy::Enemy(std::shared_ptr<Model> model) :
 	GameObject(model),
-    attackDamage(25),
+    attackDamage(10),
     health(100),
     dead(false)
 {
