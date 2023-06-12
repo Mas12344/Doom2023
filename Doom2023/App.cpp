@@ -18,7 +18,7 @@
 #include "camera.h"
 #include "Text_Renderer.h"
 #include "GameObject.h"
-
+#include "Raycaster.h"
 
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
@@ -34,6 +34,8 @@ bool firstMouse = true;
 Enemy *enemies[40];
 
 Camera camera(glm::vec3(0.0f, 2.0f, 3.0f));
+
+Raycaster *raycaster = new Raycaster;
 
 void processInput(GLFWwindow* window)
 {
@@ -238,6 +240,7 @@ int main() {
 
         pgun.GetModel()->Draw("simple", Mpgun);
 
+        //raycaster->Update(camera, deltaTime, mouse_callback, enemies);
         std::stringstream ss;
         ss << "FPS: " << 1.f/deltaTime;
         Text->RenderText(ss.str(), 15.f, 15.f, 1.0f);

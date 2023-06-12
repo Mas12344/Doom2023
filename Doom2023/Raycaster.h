@@ -29,7 +29,7 @@ public:
 	void operator=(Raycaster const&) = delete;
 
 	void ProcessInput(Camera& cam, float dt, void mouseCallback(GLFWwindow* window, double xposIn, double yposIn));
-	void Update(Camera& cam, float dt, void mouseCallback(GLFWwindow* window, double xposIn, double yposIn), std::vector<Enemy*>& enemies);
+	void Update(Camera& cam, float dt, void mouseCallback(GLFWwindow* window, double xposIn, double yposIn), Enemy *enemies[40]);
 
 	void CastRay() { m_castRay = true; }
 	Ray& GetRay() { return m_ray; }
@@ -37,9 +37,9 @@ public:
 	void OnEnemyHit(Enemy* enemy);
 	void OnPlayerHit(float damage);
 	bool PointInSphere(Camera& cam, glm::vec3&, float radius);
+	Raycaster();
 
 private:
-	Raycaster();
 
 	Ray m_ray;
 	float m_mouseX, m_mouseY;
@@ -50,7 +50,7 @@ private:
 	// Private functions
 	Ray CastRayFromMouse(Camera& cam);
 	Ray CastRayFromWeapon(Camera& cam);
-	void CheckRaySphereCollision(Camera& cam, std::vector<Enemy*> enemies);
+	void CheckRaySphereCollision(Camera& cam, Enemy *enemies[40]);
 	bool RaySphere(Camera& cam, glm::vec3 RayDirWorld, double SphereRadius, double x, double y, double z);
 };
 

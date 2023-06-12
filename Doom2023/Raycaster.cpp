@@ -10,7 +10,7 @@ Raycaster::Raycaster() :
 Raycaster::~Raycaster()
 {}
 
-void Raycaster::Update(Camera& cam, float dt, void mouseCallback(GLFWwindow* window, double xposIn, double yposIn), std::vector<Enemy*>& enemies)
+void Raycaster::Update(Camera& cam, float dt, void mouseCallback(GLFWwindow* window, double xposIn, double yposIn), Enemy* enemies[40])
 {
 
 	// Check if ray casting is true
@@ -86,11 +86,11 @@ bool Raycaster::RaySphere(Camera& cam, glm::vec3 RayDirWorld, double SphereRadiu
 	return false;
 }
 
-void Raycaster::CheckRaySphereCollision(Camera& cam, std::vector<Enemy*> enemies)
+void Raycaster::CheckRaySphereCollision(Camera& cam, Enemy* enemies[40])
 {
-	for (auto i = enemies.begin(); i != enemies.end(); ++i)
+	for (auto i = 0; i != 40; ++i)
 	{
-		m_collision = RaySphere(cam, m_ray.dir, 3.0f, (*i)->GetModelMatrix()[3].x, (*i)->GetModelMatrix()[3].y, (*i)->GetModelMatrix()[3].z);
+		m_collision = RaySphere(cam, m_ray.dir, 3.0f, enemies[i]->GetModelMatrix()[3].x, enemies[i]->GetModelMatrix()[3].y, enemies[i]->GetModelMatrix()[3].z);
 
 		// Check if the ray is colliding with the sphere
 		if (m_collision)
