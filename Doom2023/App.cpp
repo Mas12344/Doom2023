@@ -277,6 +277,14 @@ int main() {
             }
 
             glm::mat4 Mpgun = glm::mat4(1);
+            if (camera.Position.z < -18.0f)
+                camera.Position.z = 18.0f;
+            if (camera.Position.z > 18.0f)
+                camera.Position.z = 18.0f;
+            if (camera.Position.x < -18.0f)
+                camera.Position.x = -18.0f;
+            if (camera.Position.x > 18.0f)
+                camera.Position.x = -18.0f;
             Mpgun = glm::inverse(camera.GetViewMatrix());
             pgun.SetModelMatrix(Mpgun);
             pgun.ApplyTransform(
