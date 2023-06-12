@@ -30,6 +30,15 @@ Enemy::Enemy(std::shared_ptr<Model> model) :
 			0.0f
 		)
 	);
+	ApplyTransform(
+		Transformation(
+			TranformType::Rotate,
+			glm::vec3(0.f, 1.f, 0.f),
+			glm::vec3(),
+			glm::radians(randomNumber2(0.0, 720.))
+		)
+	);
+
 }
 
 glm::vec3 Enemy::getCoords() {
