@@ -139,12 +139,12 @@ void spawnEnemies(std::shared_ptr<Model> model) {
     }
 }
 
-bool checkIfWin(int enemiesKilled = 0) {
+int checkIfWin() {
+    int enemiesKilled = 0;
     for (int i = 0; i < 40; i++) {
         if (enemies[i]->dead) enemiesKilled++;
     }
-    if (enemiesKilled < 10) return false;
-    return true;
+    return enemiesKilled;
 }
 
 bool checkIfGameOver() {
@@ -152,15 +152,7 @@ bool checkIfGameOver() {
 }
 
 bool checkIfEndGame() {
-    if (checkIfGameOver()) {
-        Text->RenderText("Game over!", screenWidth / 2 - 25.0f, screenHeight / 2, 1.0f);
-        return true;
-    }
-    else if (checkIfWin(0)) {
-        Text->RenderText("You win!", screenWidth / 2 - 25.0f, screenHeight / 2, 1.0f);
-        return true;
-    }
-    return false;
+    return checkIfWin() >= 10;
 }
 
 int main() {
@@ -227,9 +219,7 @@ int main() {
         
 
         processInput(window);
-
         sortEnemies(camera, enemies);
-
         raycaster->Update(camera, deltaTime,screenWidth, screenHeight, enemies);
 
         glClearColor(0.09375f, 0.09375f, 0.09375f, 1.0f);
@@ -243,48 +233,54 @@ int main() {
         s.SetMatrix4("P", P);
    
         labirynt.GetModel()->Draw("simple", Mlabirynt);
-        if(!checkIfEndGame())
-        for (int i = 0; i < 40; i++) {
-            auto m = enemies[i]->GetModelMatrix();
-            enemies[i]->GetModel()->Draw("simple", m);
+        if (!checkIfEndGame()) {
+            for (int i = 0; i < 40; i++) {
+                auto m = enemies[i]->GetModelMatrix();
+                enemies[i]->GetModel()->Draw("simple", m);
+            }
+
+            glm::mat4 Mpgun = glm::mat4(1);
+            Mpgun = glm::inverse(camera.GetViewMatrix());
+            pgun.SetModelMatrix(Mpgun);
+            pgun.ApplyTransform(
+                Transformation(
+                    TranformType::Translate,
+                    glm::vec3(),
+                    glm::vec3(0.04f, -0.04f, -0.15f),
+                    0.0f
+                )
+            );
+            pgun.ApplyTransform(
+                Transformation(
+                    TranformType::Rotate,
+                    glm::vec3(0.f, 1.f, 0.f),
+                    glm::vec3(),
+                    glm::radians(180.f)
+                )
+            );
+
+            Mpgun = pgun.ApplyTransform(
+                Transformation(
+                    TranformType::Scale,
+                    glm::vec3(),
+                    glm::vec3(0.012f)
+                )
+            );
+
+            pgun.GetModel()->Draw("simple", Mpgun);
+
+            std::stringstream ss;
+            ss << "FPS: " << 1.f / deltaTime;
+            Text->RenderText(ss.str(), 15.f, 15.f, 1.0f);
+            ss.str("");
+            ss.clear();
+            ss << checkIfWin() << "/10 enemies killed";
+            Text->RenderText(ss.str(), screenWidth / 2, 15.0f, 1.0f);
+            Text->RenderText(".", screenWidth / 2, screenHeight / 2, 1.0f);
         }
-
-        glm::mat4 Mpgun = glm::mat4(1);
-        Mpgun = glm::inverse(camera.GetViewMatrix());
-        pgun.SetModelMatrix(Mpgun);
-        pgun.ApplyTransform(
-            Transformation(
-                TranformType::Translate,
-                glm::vec3(),
-                glm::vec3(0.04f, -0.04f, -0.15f),
-                0.0f
-            )
-        );
-        pgun.ApplyTransform(
-            Transformation(
-                TranformType::Rotate,
-                glm::vec3(0.f, 1.f, 0.f),
-                glm::vec3(),
-                glm::radians(180.f)
-            )
-        );
-
-        Mpgun = pgun.ApplyTransform(
-            Transformation(
-                TranformType::Scale,
-                glm::vec3(),
-                glm::vec3(0.012f)
-            )
-        );
-
-        pgun.GetModel()->Draw("simple", Mpgun);
-
-        std::stringstream ss;
-        ss << "FPS: " << 1.f/deltaTime;
-        Text->RenderText(ss.str(), 15.f, 15.f, 1.0f);
-        Text->RenderText("0/10 enemies killed", screenWidth/2,15.0f,1.0f);
-        Text->RenderText(".", screenWidth/2,screenHeight/2,1.0f);
-        
+        else {
+            Text->RenderText("You win!", screenWidth / 2 - 25.0f, screenHeight / 2, 1.0f);
+        }
 
         glfwSwapBuffers(window);
 
