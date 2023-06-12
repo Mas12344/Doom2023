@@ -107,7 +107,10 @@ void spawnEnemies(std::shared_ptr<Model> model) {
     }
 }
 
-bool checkIfWin(int enemiesKilled) {
+bool checkIfWin(int enemiesKilled = 0) {
+    for (int i = 0; i < 40; i++) {
+        if (enemies[i]->dead) enemiesKilled++;
+    }
     if (enemiesKilled < 10) return false;
     return true;
 }
@@ -204,7 +207,7 @@ int main() {
         s.SetMatrix4("P", P);
    
         labirynt.GetModel()->Draw("simple", Mlabirynt);
-        //if(!checkIfEndGame())
+        if(!checkIfEndGame())
         for (int i = 0; i < 40; i++) {
             auto m = enemies[i]->GetModelMatrix();
             enemies[i]->GetModel()->Draw("simple", m);
